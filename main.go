@@ -4,9 +4,9 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/heroku/x/hmetrics/onload"
 )
 
 type Joke struct {
@@ -641,8 +641,7 @@ func PopulateJokes() {
 
 // our main function
 func main() {
-	// port := os.Getenv("PORT")
-	port := "8000"
+	port := os.Getenv("PORT")
 
 	if port == "" {
 		log.Fatal("$PORT must be set")
@@ -654,8 +653,11 @@ func main() {
 	router.Use(gin.Logger())
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+	})
 
-	router.GET("/", GetJoke)
+	router.GET("/joke", GetJoke)
 	router.GET("/jokes", GetJokes)
 
 	router.Run(":" + port)
